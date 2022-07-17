@@ -1,0 +1,132 @@
+///////////////////////from admin csv.////////////
+
+from django.contrib import admin
+from django.urls import path
+from django.shortcuts import render
+from .models import customer
+from django import forms
+
+from django.contrib import messages
+from django.http import HttpResponseRedirect
+from django.urls import reverse
+
+class CsvImportForm(forms.Form):
+    csv_upload = forms.FileField()
+
+class CustomerAdmin(admin.ModelAdmin):
+    list_display = ('name', 'balance')
+
+
+    def get_urls(self):
+        urls = super().get_urls()
+        new_url = [path('upload_csv/', self.upload_csv),]
+        return new_url + urls
+    
+    def upload_csv(self, request):
+        if request.method == "POST":
+            csv_file = request.FILES["csv_upload"]
+
+            file_data = csv_file.read().decode("utf-8")
+            csv_data = file_data.split("\n")
+            for x in csv_data:
+                fields = x.split(",")
+                created = customer.objects.update_or_create(
+                    name = fields[0],
+                    balance = fields[1],
+                    )
+            url = reverse('admin:index')
+            return HttpResponseRedirect(url)
+
+        form = CsvImportForm()
+        data = {'form': form}
+        return render(request, 'admin/csv_upload.html', data)
+
+admin.site.register(customer, CustomerAdmin)
+
+/////////////////////////////////////home page////////////////////////////////
+{% block messages %}
+{% if messages %}
+{% for m in messages %}
+{{m}}
+{%endfor%}
+{% endif %}
+{% endblock %}
+
+
+
+///////////////////////////////////admin previous/////////////////////////////////////////
+    # def upload_csv(self, request):
+    #     global attribute1
+    #     if request.method == "POST":
+    #         uploaded_file = request.FILES["document"]
+    #         attribute1 = request.POST.get('attributeid')
+            
+    #         if uploaded_file.name.endswith('.csv'):
+    #             file_data = uploaded_file.read().decode("utf-8")
+    #             csv_data = file_data.split("\n")
+    #             for x in csv_data:
+    #                 fields = x.split(",")
+
+    #                 created = Sales.objects.update_or_create(
+    #                     country = fields[0],
+    #                     orderID = fields[1],
+    #                     totalCost = fields[2],
+    #                     )
+
+    #             savefile = FileSystemStorage()
+    #             name = savefile.save(uploaded_file.name, uploaded_file)
+    #             # whre to save files
+    #             d = os.getcwd()
+    #             file_directory = d + '/media/' + name
+    #             print(file_directory)
+    #             # readfile(file_directory)
+    #             # return redirect(results)
+
+    #             url = reverse('admin:index')
+    #             return HttpResponseRedirect(url)
+
+    #         else:
+    #             messages.warning(request, 'cant upload file. please use csv format')
+   
+    #     form = UploadFileForm()
+    #     data = {'form': form}
+
+    #     return render(request, 'admin/upload_csv_page.html', data)
+
+
+///////////////////////////////////////////////////////////////
+def home(request):
+    all = Sales.objects.values_list('country', flat=True)
+    country = list(all)
+    print(country)
+    dashboard = []
+
+    for x in country:
+        dashboard.append(x)
+        something()
+    dashboard1 = dict(Counter(dashboard))
+    print("my dashboard ", dashboard1)
+
+    keys =  dashboard1.keys()
+    values = dashboard1.values()
+
+    print(keys)
+    print(values)
+
+    listkeys = list(keys)
+    listvalues = list(values)
+    print(listkeys)
+    print(listvalues)
+
+    context = {
+        'listkeys': listkeys,
+        'listvalues': listvalues,
+    }
+
+
+
+
+    return render(request, 'chart/home.html', context)
+
+
+/////////////////////////////////////////

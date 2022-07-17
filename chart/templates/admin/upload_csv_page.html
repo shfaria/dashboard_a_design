@@ -1,0 +1,32 @@
+{% extends 'admin/base.html' %}
+{%block content%}
+
+<style>
+    .for-m{
+        padding: 100px;
+    }
+</style>
+
+<div class="for-m">
+    Please upload
+    <form action="" method="post" enctype="multipart/form-data">
+
+        <input type="file" name="document" id="document" required="required">
+
+        <!-- <p id="attributeid">attribute id</p> -->
+        <!-- <input type="text" name="attributeid" id="attributeid" required="required"> -->
+    
+
+
+        {%csrf_token%}
+        <button type="submit">upload</button>
+    </form>
+
+   
+</div>
+
+{{block.super}}
+
+{%endblock%}
+
+
